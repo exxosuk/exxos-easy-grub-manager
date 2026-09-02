@@ -1,0 +1,32 @@
+Origin: exxos-easy-grub-manager
+Label: Exxos Easy GRUB Manager
+Suite: stable
+Codename: stable
+Architectures: amd64 all
+Components: main
+Description: Exxos Easy GRUB Manager apt repository
+Date: Wed, 02 Sep 2026 20:29:01 +0000
+MD5Sum:
+ 32e015f2f03982810184f3e8bfcab897              226 Release
+ bb364883ede2bd6f4c2445d016dc3d66              782 main/binary-all/Packages
+ 108bf81473960cda58c5fdcd18b7af12              527 main/binary-all/Packages.gz
+ bb364883ede2bd6f4c2445d016dc3d66              782 main/binary-amd64/Packages
+ 108bf81473960cda58c5fdcd18b7af12              527 main/binary-amd64/Packages.gz
+SHA1:
+ 73f0d5c8de1a9b256aaeb2c09b785727e64d5918              226 Release
+ 220a09ea88c44831c84e5de64fa6f6a35bc0e864              782 main/binary-all/Packages
+ 668f9563e35860e0310f5f81a0c8091a4c66e937              527 main/binary-all/Packages.gz
+ 220a09ea88c44831c84e5de64fa6f6a35bc0e864              782 main/binary-amd64/Packages
+ 668f9563e35860e0310f5f81a0c8091a4c66e937              527 main/binary-amd64/Packages.gz
+SHA256:
+ 74147500f2cc61bdb1f28136402071bd71ab806a5aaf430a7441aa91525ba13b              226 Release
+ e6692e1f1287d33cdc579a987372338cde6b436a4039139bee97ed90958c9037              782 main/binary-all/Packages
+ c20216aed6b347950cbc3825bbc0a7aa18f761b1b801623b5417afe4c9d4aef5              527 main/binary-all/Packages.gz
+ e6692e1f1287d33cdc579a987372338cde6b436a4039139bee97ed90958c9037              782 main/binary-amd64/Packages
+ c20216aed6b347950cbc3825bbc0a7aa18f761b1b801623b5417afe4c9d4aef5              527 main/binary-amd64/Packages.gz
+SHA512:
+ 7ec5125c3212de7525cfe409e29dff9fecbb1fe265d6749322b8052c5257639e8307007d6566b1ec23ee3afbc6718232d54b8d5835810cf1c028469b5cee493e              226 Release
+ 9076fa60b8dff80fd2b5b2bae95a7b65d49ce8d834c5b15aedf84b478ff0562760faef62a257bd0782c7699218b92d8adae735f5e8ad6a5414c5d5e9f2d535e0              782 main/binary-all/Packages
+ a3e561d36cc336c3fcf4b5ef2cf38f62fe9670bb31219e43fcb4ee621f1ddd31fd0b5d3642d231c516214d46ef5c2969c3ff2eab92aa55893af314521fe3c9d2              527 main/binary-all/Packages.gz
+ 9076fa60b8dff80fd2b5b2bae95a7b65d49ce8d834c5b15aedf84b478ff0562760faef62a257bd0782c7699218b92d8adae735f5e8ad6a5414c5d5e9f2d535e0              782 main/binary-amd64/Packages
+ a3e561d36cc336c3fcf4b5ef2cf38f62fe9670bb31219e43fcb4ee621f1ddd31fd0b5d3642d231c516214d46ef5c2969c3ff2eab92aa55893af314521fe3c9d2              527 main/binary-amd64/Packages.gz

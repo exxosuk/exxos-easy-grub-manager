@@ -1,0 +1,12 @@
+<html><head><title>Exxos Easy GRUB Manager</title></head>
+<body>
+<h1>Exxos Easy GRUB Manager</h1>
+<p>APT repository for Exxos Easy GRUB Manager.</p>
+<h2>Install</h2>
+<pre>
+curl -fsSL https://exxosuk.github.io/exxos-easy-grub-manager/exxos-easy-grub-manager.gpg.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/exxos-easy-grub-manager.gpg
+echo "deb https://exxosuk.github.io/exxos-easy-grub-manager stable main" | sudo tee /etc/apt/sources.list.d/exxos-easy-grub-manager.list
+sudo apt update
+sudo apt install exxos-easy-grub-manager
+</pre>
+</body></html>
