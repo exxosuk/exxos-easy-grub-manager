@@ -169,23 +169,22 @@ def identify_os(device, fstype, label, mount):
     Returns (os_name, reason). os_name is empty when there is no operating
     system on the partition, and reason then says why, for the log.
     """
+    if not mount:
+        return "", "not mounted - mount it or run as root to check"
+
     if fstype in ("ext2", "ext3", "ext4", "btrfs", "xfs"):
-        if not mount:
-            return "", "not mounted - mount it or run as root to inspect"
         if linux_install_at(mount):
             return detect_linux_os(device, mount), ""
-        return "", "no Linux system installed (data partition)"
+        return "", "no operating system installed (data partition)"
 
     if fstype == "ntfs":
-        if not mount:
-            return "", "not mounted - mount it or run as root to inspect"
         if windows_install_at(mount):
             return f"Windows ({label})" if label else "Windows", ""
         if windows_boot_at(mount):
             return "Windows Boot (System Reserved)", ""
-        return "", "no Windows system installed (data partition)"
+        return "", "no operating system installed (data partition)"
 
-    return "", f"{fstype or 'no filesystem'} - cannot hold a bootable OS"
+    return "", "not a filesystem an OS can be installed on"
 
 
 def detect_bootable_partitions():
