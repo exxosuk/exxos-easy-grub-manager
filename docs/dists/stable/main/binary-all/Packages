@@ -1,13 +1,13 @@
 Package: exxos-easy-grub-manager
-Version: 1.0.3
+Version: 1.0.4
 Architecture: all
 Maintainer: exxos_uk@yahoo.co.uk
 Depends: python3, python3-pyqt5, grub-pc | grub-efi-amd64, os-prober
-Filename: pool/main/exxos-easy-grub-manager_1.0.3_all.deb
-Size: 10668
-MD5sum: 90ab67c61b0a667cd6550f0c861bed86
-SHA1: dfdf67235907cdc7979ab0f5e55d1f25c67a1d13
-SHA256: bf3c8d6a73cf108d4dc636aec48156049902be2019b085aeb8a1a6ef8190618c
+Filename: pool/main/exxos-easy-grub-manager_1.0.4_all.deb
+Size: 11656
+MD5sum: c748a7059f9aa3d584fcae0f66f557e4
+SHA1: a20371d89bbd2c3120fa35e4836a667e81c5600d
+SHA256: c2b21a1d904e73a5ab037e1bf6e335f6f044d05166043c031f3ae1c1f568f8b8
 Section: admin
 Priority: optional
 Homepage: https://github.com/exxosuk/exxos-easy-grub-manager

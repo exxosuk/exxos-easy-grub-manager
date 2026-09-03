@@ -526,6 +526,12 @@ class GrubManager(QMainWindow):
         # For blocking command execution
         self._cmd_result = None
 
+        # Clicking a button left it holding focus, which the style draws as a
+        # dotted rectangle that sits there afterwards saying nothing. Tab still
+        # reaches the buttons, and then the rectangle means something.
+        for button in self.findChildren(QPushButton):
+            button.setFocusPolicy(Qt.TabFocus)
+
         self.scan()
 
     def log_msg(self, msg):
@@ -652,6 +658,39 @@ class GrubManager(QMainWindow):
                 for line in stdout.splitlines():
                     self.log_msg(f"  {line}")
         return success
+
+    def run_sudo_capture(self, cmd, description):
+        """Run a command with pkexec and hand back its output rather than logging it."""
+        self.show_progress(description)
+        self._cmd_result = None
+        worker = CmdWorker(cmd)
+        worker.finished.connect(self._on_cmd_finished)
+        worker.start()
+        while self._cmd_result is None:
+            QApplication.processEvents()
+            worker.msleep(50)
+        success, stdout, stderr = self._cmd_result
+        if not success and stderr:
+            self.log_msg(f"  {stderr}")
+        return success, stdout
+
+    def detect_grub_drives(self, drives):
+        """Ask, as root, which drives really have GRUB in their MBR.
+
+        The scan does this unprivileged and can only see the MBR of drives the
+        user may read - usually none - so it has to be asked again here, once,
+        before Fix All decides where GRUB should go. Returns None if the check
+        could not be run, which is not the same as "no drive has GRUB".
+        """
+        devices = " ".join(d["device"] for d in drives)
+        script = (f"for d in {devices}; do "
+                  "dd if=$d bs=512 count=1 2>/dev/null | grep -qa GRUB && echo $d; "
+                  "done")
+        ok, out = self.run_sudo_capture(f"bash -c '{script}'",
+                                        "Checking which drives have GRUB installed")
+        if not ok:
+            return None
+        return [line.strip() for line in out.splitlines() if line.strip().startswith("/dev/")]
 
     def _on_cmd_finished(self, success, stdout, stderr):
         self._cmd_result = (success, stdout, stderr)
@@ -903,38 +942,73 @@ class GrubManager(QMainWindow):
     # ── Fix All ──
 
     def fix_all(self):
-        """One-click fix: enable os-prober, detect all OSes, install GRUB everywhere."""
+        """One-click fix: enable os-prober, then repair GRUB where it already lives.
+
+        Writing GRUB to every drive in the machine is not a repair, it is a
+        change to drives that were working: a backup disk moved to another PC
+        would suddenly try to boot this system. So Fix All puts GRUB back where
+        it already is, and only falls back to the drive we are booted from when
+        no drive has it at all.
+        """
         drives = self.get_all_drives()
 
         if not drives:
             QMessageBox.warning(self, "No Drives", "No drives detected. Try Refresh first.")
             return
 
-        # Build drive list for display
-        drive_lines = []
-        for d in drives:
-            status = "has GRUB" if d["has_grub"] else "no GRUB"
-            drive_lines.append(f"  {d['device']}  {d['size']}  ({status})  {d.get('contents', '')}")
-        drive_text = "\n".join(drive_lines)
+        detected = self.detect_grub_drives(drives)
+        if detected is not None:
+            for d in drives:
+                d["has_grub"] = d["device"] in detected
+            for i in range(self.drive_tree.topLevelItemCount()):
+                item = self.drive_tree.topLevelItem(i)
+                data = item.data(0, Qt.UserRole) or {}
+                has = data.get("device") in detected
+                data["has_grub"] = has
+                item.setData(0, Qt.UserRole, data)
+                item.setText(4, "GRUB Installed" if has else "No GRUB")
+                item.setForeground(4, QColor("#4caf50") if has else QColor("#999"))
 
-        if len(drives) > 1:
+        targets = [d for d in drives if d["has_grub"]]
+        booted = root_disk()
+        fallback = not targets
+
+        if fallback:
+            targets = [d for d in drives if d["device"] == booted]
+            if not targets:
+                QMessageBox.warning(
+                    self, "Fix All - No Target",
+                    "No drive has GRUB installed, and the drive this system booted from\n"
+                    f"({booted or 'unknown'}) is not in the list of drives.\n\n"
+                    "Pick a drive yourself and use \"Install GRUB to Selected\"."
+                )
+                return
+
+        target_text = "\n".join(
+            f"  {d['device']}  {d['size']}  {d.get('contents', '')}" for d in targets
+        )
+
+        if fallback:
             msg = (
-                f"Multiple drives detected:\n{drive_text}\n\n"
+                "No drive on this machine has GRUB installed.\n\n"
+                f"{booted} has been selected automatically, only because it is the\n"
+                "drive this system is currently booted from. Nothing else was found\n"
+                "to go on, so if that is the wrong drive, cancel and use\n"
+                "\"Install GRUB to Selected\" instead.\n\n"
                 "Fix All will:\n"
                 "  1. Save current settings as backup\n"
                 "  2. Enable os-prober (to detect Windows/other OSes)\n"
-                "  3. Install GRUB to ALL drives listed above\n"
+                f"  3. Install GRUB to {booted}\n"
                 "  4. Run update-grub to detect all bootable OSes\n\n"
-                "This means any drive can boot the system with all OS choices.\n\n"
                 "Continue?"
             )
         else:
             msg = (
-                f"Drive detected:\n{drive_text}\n\n"
+                f"GRUB is already installed on:\n{target_text}\n\n"
                 "Fix All will:\n"
                 "  1. Save current settings as backup\n"
                 "  2. Enable os-prober (to detect Windows/other OSes)\n"
-                "  3. Install GRUB to the drive\n"
+                "  3. Reinstall GRUB there, leaving every other drive untouched\n"
                 "  4. Run update-grub to detect all bootable OSes\n\n"
                 "Continue?"
             )
@@ -947,7 +1021,7 @@ class GrubManager(QMainWindow):
         if reply != QMessageBox.Yes:
             return
 
-        total_steps = 3 + len(drives)
+        total_steps = 3 + len(targets)
         step = 0
 
         try:
@@ -971,11 +1045,17 @@ class GrubManager(QMainWindow):
             )
             self.run_sudo_cmd(f"bash -c \"{script}\"", "Enabling os-prober in GRUB config")
 
-            # Step 3: Install GRUB to all drives - tick them in the UI
+            # Step 3: install to the chosen drives - tick exactly those in the UI
+            wanted = {d["device"] for d in targets}
             for i in range(self.drive_tree.topLevelItemCount()):
-                self.drive_tree.topLevelItem(i).setCheckState(0, Qt.Checked)
+                item = self.drive_tree.topLevelItem(i)
+                data = item.data(0, Qt.UserRole) or {}
+                item.setCheckState(0, Qt.Checked if data.get("device") in wanted else Qt.Unchecked)
 
-            for d in drives:
+            if fallback:
+                self.log_msg(f"  no drive had GRUB - defaulting to the booted drive {booted}")
+
+            for d in targets:
                 step += 1
                 dev = d["device"]
                 self.show_progress(f"Installing GRUB to {dev}...", step, total_steps)
@@ -992,11 +1072,14 @@ class GrubManager(QMainWindow):
             self.log_msg("=== Fix All complete ===")
 
             if ok:
+                installed = ", ".join(d["device"] for d in targets)
+                note = (f"\n\n{booted} was chosen automatically because no drive had GRUB "
+                        "on it; it is the drive this system booted from.") if fallback else ""
                 QMessageBox.information(
                     self, "Fix All Complete",
-                    "GRUB has been installed and configured on all drives.\n"
+                    f"GRUB has been installed and configured on {installed}.\n"
                     "All detected operating systems should now appear in the boot menu.\n\n"
-                    "A backup of your previous settings was saved automatically."
+                    "A backup of your previous settings was saved automatically." + note
                 )
             else:
                 QMessageBox.warning(

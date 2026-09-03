@@ -2,7 +2,7 @@
 # Build the .deb package for exxos-easy-grub-manager
 set -e
 
-VERSION="1.0.3"
+VERSION="1.0.4"
 PKG="exxos-easy-grub-manager"
 ARCH="all"
 BUILD_DIR="build/${PKG}_${VERSION}_${ARCH}"

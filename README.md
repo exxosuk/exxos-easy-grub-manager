@@ -11,7 +11,9 @@ A simple GUI tool for managing the GRUB bootloader across drives on Debian-based
 - **Install / Remove GRUB** - install or remove GRUB on any drive with a single click
 - **Update GRUB Package** - updates GRUB to the latest version, reinstalls to all drives, and regenerates the boot menu
 - **Save / Restore Settings** - back up and restore your GRUB configuration files (grub.cfg, /etc/default/grub, /etc/grub.d/)
-- **Fix All** - one-click repair: saves a backup, enables os-prober, installs GRUB to all drives, and regenerates the config with all detected operating systems
+- **Fix All** - one-click repair: saves a backup, enables os-prober, reinstalls GRUB on the drives
+  that already have it - and only those - and regenerates the config with all detected operating
+  systems. If no drive has GRUB at all it falls back to the drive you booted from and says so
 - **Desktop shortcut** - create or remove a desktop launcher from within the app
 - **Progress bar** - visual feedback during all operations with controls locked to prevent accidental double-clicks
 - Uses `pkexec` for root access (graphical password prompt, no terminal needed)
