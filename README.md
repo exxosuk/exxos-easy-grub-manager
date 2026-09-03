@@ -27,6 +27,10 @@ sudo apt update
 sudo apt install exxos-easy-grub-manager
 ```
 
+**Note for anyone who installed 1.0.1:** the repository is now signed with the same key as the
+other Exxos repositories. If `apt update` reports `NO_PUBKEY`, re-run the first command above to
+fetch the current key, then `sudo apt update` again.
+
 ## Run
 
 After installing, launch from the application menu or run:
