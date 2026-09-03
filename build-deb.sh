@@ -2,7 +2,10 @@
 # Build the .deb package for exxos-easy-grub-manager
 set -e
 
-VERSION="1.0.4"
+# The version lives in the source, so the title bar and the package can
+# never disagree about which build this is.
+VERSION=$(grep -m1 '^VERSION = ' src/exxos-easy-grub-manager.py | cut -d'"' -f2)
+[ -n "$VERSION" ] || { echo "No VERSION in src/exxos-easy-grub-manager.py" >&2; exit 1; }
 PKG="exxos-easy-grub-manager"
 ARCH="all"
 BUILD_DIR="build/${PKG}_${VERSION}_${ARCH}"

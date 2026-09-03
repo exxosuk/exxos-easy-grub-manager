@@ -3,6 +3,13 @@
 Every released version of Exxos Easy GRUB Manager, newest first. The version
 number in `build-deb.sh` is the one apt installs.
 
+## 1.0.5
+
+* The title bar shows the version, so which build is running is visible without
+  asking apt.
+* The version is now written once, in the source, and the package build reads it
+  from there — the title bar and the installed package cannot disagree.
+
 ## 1.0.4
 
 * **Fix All no longer installs GRUB to every drive.** It reinstalls only on the

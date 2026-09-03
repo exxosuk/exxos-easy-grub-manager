@@ -46,6 +46,8 @@ class CmdWorker(QThread):
         except Exception as e:
             self.finished.emit(False, "", str(e))
 
+VERSION = "1.0.5"
+
 BACKUP_DIR = os.path.expanduser("~/.config/exxos-grub-manager")
 GRUB_FILES = [
     "/etc/default/grub",
@@ -403,7 +405,7 @@ def list_saved_backups():
 class GrubManager(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Exxos Easy GRUB Manager")
+        self.setWindowTitle(f"Exxos Easy GRUB Manager {VERSION}")
         self.setMinimumSize(950, 550)
 
         central = QWidget()

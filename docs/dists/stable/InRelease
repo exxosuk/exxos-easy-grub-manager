@@ -8,44 +8,44 @@ Codename: stable
 Architectures: amd64 all
 Components: main
 Description: Exxos Easy GRUB Manager apt repository
-Date: Thu, 03 Sep 2026 09:12:29 +0000
+Date: Thu, 03 Sep 2026 09:28:43 +0000
 MD5Sum:
- eab3837230d82b864eecd6e5b219ba15              226 Release
- 26df5b1cef6b83b3a319504d21c90248              783 main/binary-all/Packages
- db906f2f991369acc8913c18e48fdd1d              529 main/binary-all/Packages.gz
- 26df5b1cef6b83b3a319504d21c90248              783 main/binary-amd64/Packages
- db906f2f991369acc8913c18e48fdd1d              529 main/binary-amd64/Packages.gz
+ 897566f67de694bb13bc0df0adcce26f              226 Release
+ 864c362487239640c48e00cc6b631df8              783 main/binary-all/Packages
+ 189e0fa35b8ef6cb202075c311fb73f8              530 main/binary-all/Packages.gz
+ 864c362487239640c48e00cc6b631df8              783 main/binary-amd64/Packages
+ 189e0fa35b8ef6cb202075c311fb73f8              530 main/binary-amd64/Packages.gz
 SHA1:
- 45900a139a32259e79dd954cf49436e2a43fee72              226 Release
- 50d35cb99263cee5f9b0bc69895beda99807f630              783 main/binary-all/Packages
- 6b85bbd9f2c34dc78f1ede98a36d33da7eb6497a              529 main/binary-all/Packages.gz
- 50d35cb99263cee5f9b0bc69895beda99807f630              783 main/binary-amd64/Packages
- 6b85bbd9f2c34dc78f1ede98a36d33da7eb6497a              529 main/binary-amd64/Packages.gz
+ ad4757afb41ecdd00c13fa62ebef22f1f756d0f3              226 Release
+ 17efd32989018628bae4b2fb11c26de3db84b463              783 main/binary-all/Packages
+ b63b9c07f6d9db91a990a49d8dbe61d492f0c35e              530 main/binary-all/Packages.gz
+ 17efd32989018628bae4b2fb11c26de3db84b463              783 main/binary-amd64/Packages
+ b63b9c07f6d9db91a990a49d8dbe61d492f0c35e              530 main/binary-amd64/Packages.gz
 SHA256:
- 28d8b724376d6f31cec2557792a6973449bfe7b717e7b9f0e7ed4c3a365d043e              226 Release
- 09641c6c1f5f9b69f359b40efc3c29eb7b33ca26a87df6dbf7317f89c32ce3ad              783 main/binary-all/Packages
- 5b56484badda0da5e67372138528b42d60e67f20cc6c5dc623d663e4a7c4cc80              529 main/binary-all/Packages.gz
- 09641c6c1f5f9b69f359b40efc3c29eb7b33ca26a87df6dbf7317f89c32ce3ad              783 main/binary-amd64/Packages
- 5b56484badda0da5e67372138528b42d60e67f20cc6c5dc623d663e4a7c4cc80              529 main/binary-amd64/Packages.gz
+ 21cbcbc120c14e105422d0ecc18d8857479a535bdf7b121d03278e3a67a4ebfd              226 Release
+ d5c4ea782d0c61e6b604f0fee566149f8d91dad147047d92ae761a439719550b              783 main/binary-all/Packages
+ 0a5d64f6630ad778c814c4e436720cb4e67278433f0f78399a4fba4f57830020              530 main/binary-all/Packages.gz
+ d5c4ea782d0c61e6b604f0fee566149f8d91dad147047d92ae761a439719550b              783 main/binary-amd64/Packages
+ 0a5d64f6630ad778c814c4e436720cb4e67278433f0f78399a4fba4f57830020              530 main/binary-amd64/Packages.gz
 SHA512:
- 7bd7e5e4ac0ad2da0358610b7aff66e18b70e611a97f786cb7c18d51f115227e1bf6af8bb67506bdfe277d6bcf530b146cdf7ffa7d68333ada3735642cf064a4              226 Release
- bf4582b92aa994035f7345ae5141e39b54e9d88035538262306f4c0c2f154f817b6752ecd530074f18e661b1ad73d61aea5410920bac9b865885cacadf633ce2              783 main/binary-all/Packages
- 3a1bc318c574402d0fb3749121bd1193859130b8f899e4d3656658f079d242e897140e5ec10290c1b21014ae3291bcf7ffa0658e7c6ea33246fb202017c9682e              529 main/binary-all/Packages.gz
- bf4582b92aa994035f7345ae5141e39b54e9d88035538262306f4c0c2f154f817b6752ecd530074f18e661b1ad73d61aea5410920bac9b865885cacadf633ce2              783 main/binary-amd64/Packages
- 3a1bc318c574402d0fb3749121bd1193859130b8f899e4d3656658f079d242e897140e5ec10290c1b21014ae3291bcf7ffa0658e7c6ea33246fb202017c9682e              529 main/binary-amd64/Packages.gz
+ 6486dcd85658f9798a2513ccb7a9748983e60b72d2e975c47e88a17d51a5f13ab8420eceb9aec53df38f5c2935f088e91c0aa1a6376790b5974339946e551543              226 Release
+ 443ec0e06e7b25023b1afc5120e993e611b9bb7cf96425b31117b05c53e52d0ef524fcbf44fcc27e956912670ac3ded09abc7dad74800b370bf9d8d94303769b              783 main/binary-all/Packages
+ 62910a71431d008ecd126cf075b96a29430f5778da610e6a3fc32509a7b9b1894ec3341aaf484609f1795cb9e827b0a801beb21cf09a2172e906aede834de76e              530 main/binary-all/Packages.gz
+ 443ec0e06e7b25023b1afc5120e993e611b9bb7cf96425b31117b05c53e52d0ef524fcbf44fcc27e956912670ac3ded09abc7dad74800b370bf9d8d94303769b              783 main/binary-amd64/Packages
+ 62910a71431d008ecd126cf075b96a29430f5778da610e6a3fc32509a7b9b1894ec3341aaf484609f1795cb9e827b0a801beb21cf09a2172e906aede834de76e              530 main/binary-amd64/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEAbN4nHyXIK8Rn1MCmxaoMnnFpDUFAmqZOf0ACgkQmxaoMnnF
-pDV+3g//XbyA23n1kMExYjPeUTXJeiwaNdqU+pMTK+bnPWt3nuvntyFdrXVewC/O
-+vM17kz4YlL7GoSfmwjrMsKpc4A/CMHaPYBt81NzhaT8JO+DywaiEtYhtnFWDgEa
-OAQGlCK6EBAmzeU1/g58RzmNQSocSLBQlorcrcHSxDMRHpkA+eJRvRt08t8HTD9u
-bZm46qioysVAP6p6BA7+87z+ymVVKQkEy7w1YfHiqwHxvYZtSp4xglNtu7/yNmMP
-ZnM1wF5PAzCblc57v6+gjT9qECWT+416iwQlCswf5szTmvLjfV2emTLqzLOPL5lM
-dcKwk9vi+Pgr/AcU51naT+2chSH2d6VqZ6R0vN3HwSU6aU6a26070yHQkERuGG2P
-0izHUcUic7JSJDv7gZs9z0pa01ISO3Bq8iFa1Ki/I7wmnN6JsgzI+0AEt+c3eae7
-jiIwOYjOykDrTmJZYFeWIMFBLrv2koiQ6VXuipvcXH628DvUDrGd+CgGP00EmCan
-EOHLQzJrzXxcirNSdWNX3IRd/7pOHg/5NfBxK4HC0nYdEAULnoYRTFLzPghgbm3b
-2an3IaHmIjkHj/unJ7g7TzdmZiMAUFfmX3DEII9IteHSce79/79mz8lPqW71+hCA
-fCLdhtoAoM+Mz+1xE/34pmO2A1DhcDeds5Dpgb3gBAVVh/lSmKU=
-=67VJ
+iQIzBAEBCgAdFiEEAbN4nHyXIK8Rn1MCmxaoMnnFpDUFAmqZPcsACgkQmxaoMnnF
+pDW1txAAhasDva8WP7efXo+9B/YD7ETL5Eub8UuULaHpfIJylyQdTHhAz2BHB8rG
+xQSBPqcP6HgFxGLyING0ITzN+u5XDeBHpyZX6TeolcShfvCTEZunVMMLkbqb4IPD
+unabxmzZ0SMllbUGx/0sMusUZ11xb6Jx38rXdWSKu9n/g117bCCsXH/ZkIj7mKU7
+q9q2NtT867GgKuGB3YX0Ta/05AIcyw0Ad/aGSgJUIj00daCqLXxhmV4R7kQYAwxG
+QxWiPsS68WdoHRyfaWNmxWpp6x4yFOerhfYzgCIdqpk9P2QlRJJTVF4qdkQ0ZkNG
+TSC7iBxGFm2dRP8rXfKF7ZKradWfiuA1BXYwCk4YFNhuR0w20dUbj+mfPBDtJH7z
+j7juDQ1pnPIBhQFbKoc3+2uoT1WTRu7jIliSoydrd0y1nrZkim1mAsvhRs1TKnjQ
+qLn+/vfiEyoFHg43FSqm8BZVzkTtFzNExPGoVjaElcshEOgIH0Uy+3XbrSG5FM4V
+z2uxs53WAa3o/w/yaTsHh4deyEmDyJ2wG5rJvfYCvrrM5nJKbD0Id/nBp753zsPI
+NJAvY8QYVgiKGw4PmKz2vEllgPE9PxDd0EkoF3CtG+/rI7eEb7EF0MqAkEs3WbNR
+ixIANL9ppPCQnVrE3saN+9RauQtPEnBINCGl53fIrlhQL9sfh6Y=
+=ETBj
 -----END PGP SIGNATURE-----
