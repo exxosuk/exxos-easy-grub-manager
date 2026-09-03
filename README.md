@@ -18,6 +18,8 @@ A simple GUI tool for managing the GRUB bootloader across drives on Debian-based
 - **Progress bar** - visual feedback during all operations with controls locked to prevent accidental double-clicks
 - Uses `pkexec` for root access (graphical password prompt, no terminal needed)
 
+Every release is listed in [CHANGELOG.md](CHANGELOG.md).
+
 ## Install from APT
 
 ```bash
