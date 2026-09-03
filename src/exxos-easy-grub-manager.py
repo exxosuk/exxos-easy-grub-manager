@@ -10,6 +10,7 @@ import os
 import subprocess
 import json
 import shutil
+import tempfile
 from datetime import datetime
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
@@ -80,9 +81,125 @@ def get_block_devices():
         return []
 
 
+def _entry_in(base, name):
+    """Case-insensitive lookup of one name inside base. Returns the full path or ''."""
+    if not base:
+        return ""
+    try:
+        for entry in os.listdir(base):
+            if entry.lower() == name.lower():
+                return os.path.join(base, entry)
+    except OSError:
+        return ""
+    return ""
+
+
+def _path_in(base, *names):
+    """Walk a path under base one name at a time, ignoring case. Returns '' if missing."""
+    current = base
+    for name in names:
+        current = _entry_in(current, name)
+        if not current:
+            return ""
+    return current
+
+
+def windows_install_at(mount):
+    """True if a real Windows installation lives here.
+
+    Every Windows install keeps its registry hive at \\Windows\\System32\\config\\SYSTEM.
+    A backup or data partition never has one, however it is labelled.
+    """
+    return bool(_path_in(mount, "Windows", "System32", "config", "SYSTEM"))
+
+
+def windows_boot_at(mount):
+    """True if this is a Windows boot / System Reserved partition."""
+    return bool(_path_in(mount, "bootmgr")) and bool(_path_in(mount, "Boot", "BCD"))
+
+
+def linux_install_at(mount):
+    """True if a Linux root filesystem lives here.
+
+    Needs /etc plus a release file - a partition holding only /boot, or an ext4
+    drive full of backups, is not something GRUB can boot.
+    """
+    if not mount or not os.path.isdir(os.path.join(mount, "etc")):
+        return False
+    for release in ("etc/os-release", "etc/lsb-release", "etc/mx-version",
+                    "etc/debian_version", "etc/redhat-release"):
+        if os.path.exists(os.path.join(mount, release)):
+            return True
+    return False
+
+
+def probe_mount(device):
+    """Mount a partition read-only somewhere temporary so it can be inspected.
+
+    Only possible as root; a normal user cannot read an unmounted partition at all.
+    Returns the temporary mountpoint, or None.
+    """
+    if not is_root():
+        return None
+    try:
+        tmp = tempfile.mkdtemp(prefix="exxos-grub-probe-")
+    except OSError:
+        return None
+    if run_cmd(f"mount -o ro,noatime {device} {tmp}", check=True) is None:
+        try:
+            os.rmdir(tmp)
+        except OSError:
+            pass
+        return None
+    return tmp
+
+
+def probe_unmount(tmp):
+    """Undo probe_mount."""
+    run_cmd(f"umount {tmp}")
+    try:
+        os.rmdir(tmp)
+    except OSError:
+        pass
+
+
+def identify_os(device, fstype, label, mount):
+    """Work out which OS, if any, is installed on a partition.
+
+    Returns (os_name, reason). os_name is empty when there is no operating
+    system on the partition, and reason then says why, for the log.
+    """
+    if fstype in ("ext2", "ext3", "ext4", "btrfs", "xfs"):
+        if not mount:
+            return "", "not mounted - mount it or run as root to inspect"
+        if linux_install_at(mount):
+            return detect_linux_os(device, mount), ""
+        return "", "no Linux system installed (data partition)"
+
+    if fstype == "ntfs":
+        if not mount:
+            return "", "not mounted - mount it or run as root to inspect"
+        if windows_install_at(mount):
+            return f"Windows ({label})" if label else "Windows", ""
+        if windows_boot_at(mount):
+            return "Windows Boot (System Reserved)", ""
+        return "", "no Windows system installed (data partition)"
+
+    return "", f"{fstype or 'no filesystem'} - cannot hold a bootable OS"
+
+
 def detect_bootable_partitions():
-    """Detect partitions that contain bootable OS installations."""
+    """Detect the partitions that actually contain a bootable OS.
+
+    The filesystem type on its own proves nothing: an ext4 or NTFS partition is
+    just as likely to be a backup or data drive as an installed system. So every
+    candidate is opened and checked for the files a real installation has, and
+    anything else is reported as skipped rather than listed as bootable.
+
+    Returns (entries, skipped).
+    """
     entries = []
+    skipped = []
     devices = get_block_devices()
 
     for dev in devices:
@@ -101,38 +218,41 @@ def detect_bootable_partitions():
             uuid = part.get("uuid") or ""
             mount = part.get("mountpoint") or ""
 
-            os_name = ""
-            bootable = False
+            if not fstype or fstype in ("swap", "vfat", "iso9660", "squashfs"):
+                # Swap, EFI/removable vfat and optical media are never a bootable
+                # OS in their own right, so they are not worth opening.
+                continue
 
-            # Linux partitions
-            if fstype in ("ext4", "ext3", "btrfs", "xfs"):
-                bootable = True
-                os_name = detect_linux_os(name, mount)
+            probe = None
+            if not mount:
+                probe = probe_mount(name)
+                mount = probe or ""
+            try:
+                os_name, reason = identify_os(name, fstype, label, mount)
+            finally:
+                if probe:
+                    probe_unmount(probe)
 
-            # Windows/NTFS
-            elif fstype == "ntfs":
-                if label == "System Reserved" or size_to_mb(size) < 600:
-                    os_name = "Windows Boot (System Reserved)"
-                    bootable = True
-                else:
-                    os_name = detect_windows(name, label)
-                    if os_name:
-                        bootable = True
-
-            # Skip EFI/vfat partitions - not a bootable OS
-
-            if bootable:
-                entries.append({
+            if not os_name:
+                skipped.append({
                     "device": name,
                     "fstype": fstype,
-                    "size": size,
                     "label": label,
-                    "uuid": uuid,
-                    "mount": mount,
-                    "os": os_name or f"Unknown ({fstype})",
+                    "reason": reason,
                 })
+                continue
 
-    # Also run os-prober for additional detection
+            entries.append({
+                "device": name,
+                "fstype": fstype,
+                "size": size,
+                "label": label,
+                "uuid": uuid,
+                "mount": part.get("mountpoint") or "",
+                "os": os_name,
+            })
+
+    # os-prober can find systems we could not open ourselves; it needs root.
     os_prober_results = run_cmd("os-prober 2>/dev/null")
     if os_prober_results:
         for line in os_prober_results.splitlines():
@@ -157,8 +277,9 @@ def detect_bootable_partitions():
                         "mount": "",
                         "os": os_name,
                     })
+                    skipped = [s for s in skipped if s["device"] != dev]
 
-    return entries
+    return entries, skipped
 
 
 def detect_linux_os(device, mountpoint):
@@ -182,26 +303,32 @@ def detect_linux_os(device, mountpoint):
     return "Linux"
 
 
-def detect_windows(device, label):
-    """Check if an NTFS partition is a Windows installation."""
-    if label and "windows" in label.lower():
-        return f"Windows ({label})"
-    return f"Windows/Data ({label})" if label else None
-
-
 def size_to_mb(size_str):
-    """Convert size string like '100M' or '55.8G' to MB."""
+    """Convert an lsblk size string like '0B', '100M' or '55.8G' to MB."""
     try:
         s = size_str.strip().upper()
-        if s.endswith("G"):
-            return float(s[:-1]) * 1024
-        elif s.endswith("M"):
-            return float(s[:-1])
-        elif s.endswith("T"):
-            return float(s[:-1]) * 1024 * 1024
-        return 0
+        if s.endswith("B"):
+            s = s[:-1]
+        units = {"K": 1.0 / 1024, "M": 1.0, "G": 1024.0,
+                 "T": 1024.0 * 1024, "P": 1024.0 * 1024 * 1024}
+        if s and s[-1] in units:
+            return float(s[:-1]) * units[s[-1]]
+        return float(s) / (1024 * 1024) if s else 0
     except (ValueError, IndexError):
         return 0
+
+
+def root_disk():
+    """The whole disk the running system boots from, e.g. /dev/sdb or /dev/nvme0n1."""
+    root_dev = run_cmd("findmnt -n -o SOURCE /")
+    if not root_dev:
+        return ""
+    parent = run_cmd(f"lsblk -no PKNAME {root_dev}")
+    if parent:
+        parent = parent.splitlines()[0].strip()
+    if parent:
+        return "/dev/" + parent
+    return root_dev
 
 
 def get_drives():
@@ -212,6 +339,10 @@ def get_drives():
         if dev.get("type") == "disk":
             name = "/dev/" + dev["name"]
             size = dev.get("size", "")
+            # An empty card reader or drive bay reports 0B. There is no medium
+            # in it, so it is not somewhere GRUB can be installed.
+            if size_to_mb(size) <= 0 and not dev.get("children"):
+                continue
             label = dev.get("label") or ""
             partitions = []
             for child in dev.get("children", []):
@@ -253,12 +384,8 @@ def check_grub_on_drive(device):
         if out and device in out:
             return True
         # Also unknown, assume installed if it's the boot disk
-        root_dev = run_cmd("findmnt -n -o SOURCE /")
-        if root_dev:
-            import re
-            root_disk = re.sub(r'[0-9]+$', '', root_dev)
-            if device == root_disk:
-                return True
+        if device == root_disk():
+            return True
     return False
 
 
@@ -445,7 +572,7 @@ class GrubManager(QMainWindow):
 
         QApplication.processEvents()
 
-        partitions = detect_bootable_partitions()
+        partitions, skipped = detect_bootable_partitions()
         for p in partitions:
             item = QTreeWidgetItem()
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
@@ -458,6 +585,9 @@ class GrubManager(QMainWindow):
             self.os_tree.addTopLevelItem(item)
 
         self.log_msg(f"Found {len(partitions)} bootable partition(s)")
+        for s in skipped:
+            label = f" \"{s['label']}\"" if s["label"] else ""
+            self.log_msg(f"  not bootable: {s['device']} ({s['fstype']}){label} - {s['reason']}")
 
         drives = get_drives()
         for d in drives:
@@ -569,15 +699,13 @@ class GrubManager(QMainWindow):
             QMessageBox.warning(self, "No Selection", "Select at least one drive to remove GRUB from.")
             return
 
-        root_dev = run_cmd("findmnt -n -o SOURCE /")
-        if root_dev:
-            import re
-            root_disk = re.sub(r'[0-9]+$', '', root_dev)
+        boot_disk = root_disk()
+        if boot_disk:
             for d in drives:
-                if d["device"] == root_disk:
+                if d["device"] == boot_disk:
                     QMessageBox.critical(
                         self, "Safety Check",
-                        f"Cannot remove GRUB from {root_disk} - it is the current boot drive!\n"
+                        f"Cannot remove GRUB from {boot_disk} - it is the current boot drive!\n"
                         "Removing it would make the system unbootable."
                     )
                     return

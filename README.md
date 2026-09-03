@@ -6,7 +6,8 @@ A simple GUI tool for managing the GRUB bootloader across drives on Debian-based
 
 ## Features
 
-- **Detect bootable partitions** - automatically finds Linux, Windows and other OS installations
+- **Detect bootable partitions** - opens each partition and checks it for a real installation,
+  so backup and data drives are not listed as bootable. Anything skipped is explained in the log
 - **Install / Remove GRUB** - install or remove GRUB on any drive with a single click
 - **Update GRUB Package** - updates GRUB to the latest version, reinstalls to all drives, and regenerates the boot menu
 - **Save / Restore Settings** - back up and restore your GRUB configuration files (grub.cfg, /etc/default/grub, /etc/grub.d/)
